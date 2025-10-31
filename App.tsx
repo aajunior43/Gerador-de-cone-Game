@@ -1,13 +1,16 @@
 import React, { useState, useCallback } from 'react';
 import { generateIcon } from './services/geminiService';
 import { ImagePlaceholderIcon, MagicWandIcon, DownloadIcon } from './components/Icons';
-import { Spinner } from './components/Spinner';
+import { LoadingAnimation } from './components/LoadingAnimation';
 
 const styles = [
   { name: 'Fantasia', description: 'Estilo de fantasia épica, vibrante, moderno, design arrojado' },
   { name: 'Cyberpunk', description: 'Estilo cyberpunk, neon, futurista, tecnológico, sombrio' },
   { name: 'Minimalista', description: 'Estilo minimalista, limpo, simples, com formas geométricas e cores sólidas' },
   { name: 'Retrô', description: 'Estilo retrô, pixel art, 8-bit, cores vibrantes, nostálgico' },
+  { name: 'Sci-Fi', description: 'Estilo Sci-Fi, ficção científica, naves espaciais, tecnologia avançada, cosmos' },
+  { name: 'Medieval', description: 'Estilo medieval fantástico, dragões, castelos, espadas, magia antiga' },
+  { name: 'Abstrato', description: 'Estilo abstrato, formas orgânicas, cores vibrantes, arte moderna, conceitual' },
 ];
 
 const App: React.FC = () => {
@@ -103,7 +106,7 @@ const App: React.FC = () => {
               >
                 {isLoading ? (
                   <>
-                    <Spinner />
+                    <div className="w-5 h-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
                     Gerando...
                   </>
                 ) : (
@@ -119,8 +122,8 @@ const App: React.FC = () => {
 
           <div className="w-full aspect-square bg-slate-900/70 rounded-xl border-2 border-dashed border-slate-700 flex items-center justify-center overflow-hidden">
             {isLoading && (
-              <div className="flex flex-col items-center gap-4 text-slate-400">
-                <Spinner size="lg" />
+              <div className="flex flex-col items-center gap-6 text-slate-400">
+                <LoadingAnimation />
                 <p>Criando sua obra-prima...</p>
               </div>
             )}
@@ -134,7 +137,7 @@ const App: React.FC = () => {
               <img
                 src={generatedImage}
                 alt={`Ícone gerado para ${nickname}`}
-                className="w-full h-full object-cover animate-fade-in"
+                className="w-full h-full object-cover animate-fade-in shadow-[4px_4px_8px_rgba(0,0,0,0.2)]"
               />
             )}
             {!isLoading && !error && !generatedImage && (
@@ -171,6 +174,36 @@ const App: React.FC = () => {
         }
         .animate-fade-in {
           animation: fade-in 0.5s ease-in-out;
+        }
+        @keyframes pulse-core {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-pulse-core {
+            animation: pulse-core 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes orbit {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-orbit {
+            animation: orbit 8s linear infinite;
+        }
+
+        .satellite {
+            animation: pulse-satellite 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-satellite {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(0.8);
+                opacity: 0.7;
+            }
         }
       `}</style>
     </div>

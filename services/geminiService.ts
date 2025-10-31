@@ -1,4 +1,4 @@
-import { GoogleGenAI, Modality, GenerateContentResponse } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 
 const getAiClient = () => {
   const apiKey = process.env.API_KEY;
@@ -18,43 +18,26 @@ export const generateIcon = async (nickname: string, style: string): Promise<str
 
   try {
     const ai = getAiClient();
-    const prompt = `Crie um ícone de avatar de alta resolução e qualidade épica para um jogador com o apelido '${nickname}'. O apelido '${nickname}' deve ser o foco principal, estilizado de forma criativa e integrado artisticamente na imagem. Estilo: ${style}. A imagem deve ser detalhada, vibrante e adequada para um perfil de jogo online. Pense em uma arte digital polida.`;
+    const prompt = `Um ícone de avatar épico e de alta resolução para um jogador, com o apelido '${nickname}' estilizado de forma criativa e artística no centro. Estilo visual: ${style}. Detalhado, vibrante, arte digital polida, ideal para um perfil de jogo.`;
 
-    const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
-      contents: {
-        parts: [
-          {
-            text: prompt,
-          },
-        ],
-      },
+    const response = await ai.models.generateImages({
+      model: 'imagen-4.0-generate-001',
+      prompt: prompt,
       config: {
-        responseModalities: [Modality.IMAGE],
+        numberOfImages: 1,
+        outputMimeType: 'image/png',
+        aspectRatio: '1:1',
       },
     });
 
-    const candidate = response.candidates?.[0];
+    const generatedImage = response.generatedImages?.[0];
 
-    if (!candidate) {
-      if (response.promptFeedback?.blockReason) {
-        throw new Error(`Geração bloqueada por segurança: ${response.promptFeedback.blockReason}`);
-      }
-      if (response.text) {
-         throw new Error(`A API retornou uma mensagem inesperada: ${response.text}`);
-      }
-      throw new Error("A API não retornou nenhum resultado. Tente um apelido diferente.");
+    if (!generatedImage?.image?.imageBytes) {
+       throw new Error("A API não conseguiu gerar uma imagem para este apelido. Por favor, tente um apelido diferente.");
     }
 
-    for (const part of candidate.content?.parts || []) {
-      if (part.inlineData) {
-        const base64ImageBytes: string = part.inlineData.data;
-        const mimeType = part.inlineData.mimeType;
-        return `data:${mimeType};base64,${base64ImageBytes}`;
-      }
-    }
-    
-    throw new Error("A API não conseguiu gerar uma imagem para este apelido. Por favor, tente um apelido diferente.");
+    const base64ImageBytes: string = generatedImage.image.imageBytes;
+    return `data:image/png;base64,${base64ImageBytes}`;
 
   } catch (error) {
     console.error("Erro ao chamar a API Gemini:", error);
